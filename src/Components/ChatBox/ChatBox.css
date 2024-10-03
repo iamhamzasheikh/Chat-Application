@@ -1,0 +1,114 @@
+.chat-box-container {
+    height: 75vh;
+    position: relative;
+    background: #f1f5ff;
+
+    .chat-user {
+        padding: 10px 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid #c6c6c6;
+
+        img {
+            width: 25px;
+            border-radius: 50%;
+        }
+
+        img:first-child {
+            width: 38px;
+            aspect-ratio: 1/1;
+        }
+
+        p {
+            flex: 1;
+            font-weight: 500;
+            font-size: 20px;
+            color: #393939;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+    }
+
+    .chat-message {
+        height: calc(100% - 70px);
+        padding-bottom: 50px;
+        overflow-y: scroll;
+        display: flex;
+        flex-direction: column-reverse;
+
+        .sender-message div img,
+        .receiver-message div img {
+            width: 27px;
+            aspect-ratio: 1/1;
+            border-radius: 50%;
+        }
+
+        .sender-message,
+        .receiver-message {
+            display: flex;
+            align-items: end;
+            justify-content: end;
+            gap: 5px;
+            padding: 0 15px;
+
+            .message {
+                color: white;
+                background-color: #077EFF;
+                padding: 8px;
+                max-width: 200px;
+                font-size: 11px;
+                font-weight: 300;
+                border-radius: 8px 8px 0px 8px;
+                margin-bottom: 30px;
+            }
+
+            div {
+                text-align: center;
+                font-size: 10px;
+            }
+        }
+
+        .receiver-message {
+            flex-direction: row-reverse;
+            justify-content: start;
+
+            .message {
+                border-radius: 8px 8px 8px 0;
+                background-color: #94dbff;
+            }
+        }
+    }
+
+    .chat-input {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 15px;
+        background: white;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+
+        input {
+            flex: 1;
+            border: none;
+            outline: none;
+        }
+
+        img {
+            width: 30px;
+            cursor: pointer;
+        }
+
+        label {
+            display: flex;
+
+            img {
+                width: 22px;
+            }
+        }
+    }
+}
