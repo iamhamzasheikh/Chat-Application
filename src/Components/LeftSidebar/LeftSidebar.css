@@ -16,12 +16,43 @@
             }
 
             .menu {
+                position: relative;
+                padding: 10px 0;
+
                 img {
                     max-height: 20px;
                     opacity: 0.6;
                     cursor: pointer;
+
                 }
 
+                .sub-menu {
+                    position: absolute;
+                    top: 100%;
+                    right: 0;
+                    width: 130px;
+                    padding: 20px;
+                    border-radius: 5px;
+                    background-color: white;
+                    color: black;
+                    display: none;
+
+                    hr {
+                        border: none;
+                        height: 1px;
+                        background: #a4a4a4;
+                        margin: 8px 0;
+                    }
+
+                    p {
+                        cursor: pointer;
+                        font-size: 14px;
+                    }
+                }
+            }
+
+            .menu:hover .sub-menu {
+                display: block;
             }
         }
 
@@ -57,7 +88,7 @@
         height: 70%;
         overflow-y: scroll;
 
-        .friends{
+        .friends {
             display: flex;
             align-items: center;
             gap: 10px;
@@ -86,6 +117,7 @@
         .friends:hover {
             background-color: #077EFF;
         }
+
         .friends:hover span {
             color: white;
         }

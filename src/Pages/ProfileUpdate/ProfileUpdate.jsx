@@ -2,8 +2,10 @@ import './ProfileUpdate.css'
 
 const ProfileUpdate = () => {
   return (
-    <div>
-      <h1>i am profile</h1>
+    <div className='profile-update-container'>
+      <div className="profile-inner-box">
+        <form action=""></form>
+      </div>
     </div>
   )
 }

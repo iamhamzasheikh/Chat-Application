@@ -9,6 +9,13 @@ const LeftSidebar = () => {
           <img src={assets.logo} alt="logo" className='logo' />
           <div className="menu">
             <img src={assets.menu_icon} alt="" />
+
+            <div className='sub-menu'>
+              <p>Edit profile</p>
+              <hr />
+              <p>Logout</p>
+            </div>
+            
           </div>
         </div>
         <div className="left-side-search">

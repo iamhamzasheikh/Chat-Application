@@ -70,13 +70,19 @@
             }
         }
 
+        .sender-message .msg-img {
+            max-width: 230px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+        }
+
         .receiver-message {
             flex-direction: row-reverse;
             justify-content: start;
 
             .message {
                 border-radius: 8px 8px 8px 0;
-                background-color: #94dbff;
+                background-color: #04a7f8;
             }
         }
     }
