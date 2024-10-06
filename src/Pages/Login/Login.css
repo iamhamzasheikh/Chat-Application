@@ -29,6 +29,34 @@
             outline-color: #077EFF;
         }
 
+        .password-container {
+            position: relative;
+            width: 100%;
+
+            input {
+                width: 100%;
+                padding-right: 40px;
+                /* Add padding to the right for the eye icon */
+            }
+
+            .eye-icon {
+                position: absolute;
+                right: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+                cursor: pointer;
+                color: #888;
+                font-size: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .eye-icon:hover {
+                color: #333;
+            }
+        }
+
         button {
             padding: 10px;
             background-color: #077EFF;

@@ -1,5 +1,6 @@
 import './RightSidebar.css'
 import assets from '../../assets/assets/'
+import { logout } from '../../Config/Firebase'
 const RightSidebar = () => {
   return (
     <div className='right-side-bar-container'>
@@ -22,7 +23,7 @@ const RightSidebar = () => {
         <img src={assets.pic2} alt="" />
         </div>
       </div>
-      <button>Logout</button>
+      <button onClick={()=>logout}>Logout</button>
     </div>
   )
 }
