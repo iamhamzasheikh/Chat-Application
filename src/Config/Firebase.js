@@ -2,8 +2,9 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { doc, getDoc, setDoc, getFirestore, query, where, collection, getDocs } from 'firebase/firestore';
+import { getFirestore, Timestamp, setDoc, getDoc, doc } from "firebase/firestore";
 import { toast } from "react-toastify";
+import { getStorage } from "firebase/storage";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -20,6 +21,42 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+export const storage = getStorage();
+
+export async function storeTimestamp(userId) {
+  const userRef = doc(db, 'users', userId);
+  const now = Timestamp.now();
+
+  await setDoc(userRef, { lastSeen: now }, { merge: true });
+}
+
+// Function to retrieve and format timestamp
+export async function getFormattedTimestamp(userId) {
+  const userRef = doc(db, 'users', userId);
+  const docSnap = await getDoc(userRef);
+
+  if (docSnap.exists()) {
+    const lastSeen = docSnap.data().lastSeen;
+    const date = lastSeen.toDate();
+
+    const formattedDate = date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      timeZone: 'UTC',
+      hour12: false
+    });
+
+    return `Date: ${formattedDate} UTC`;
+  } else {
+    return "No timestamp found";
+  }
+}
+
+
 
 // Function to sign up a new user
 
@@ -59,8 +96,8 @@ const signup = async (username, email, password) => {
     toast.success("User created successfully!");
 
   }
-  
-  
+
+
   catch (error) {
     // Handle Firebase Auth errors
     if (error.code === 'auth/email-already-in-use') {
@@ -100,7 +137,7 @@ const logout = async () => {
   catch (error) {
     toast.error("An error occurred while logging out.");
     console.error("Error during logout:", error);
-  } 
+  }
 }
 
 export { signup, auth, logout, login, db };
