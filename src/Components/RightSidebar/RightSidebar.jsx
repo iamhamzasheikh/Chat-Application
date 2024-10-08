@@ -9,7 +9,7 @@ const RightSidebar = () => {
 
   const handleLogout = async () => {
     try {
-      await logout();  
+      await logout();
       navigate('/');  // Navigate back to login page after successful logout
     } catch (error) {
       console.error("Error during logout:", error);

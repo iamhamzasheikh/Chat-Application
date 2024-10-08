@@ -49,7 +49,7 @@ const Login = () => {
             className="form-input"
             placeholder='Enter Password' />
 
-                      {/* Eye icon to toggle password visibility */}
+          {/* Eye icon to toggle password visibility */}
           <span className="eye-icon" onClick={() => setShowPassword(!showPassword)}>
             {showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}  {/* Toggle between show/hide icons */}
           </span>
