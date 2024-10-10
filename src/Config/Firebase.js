@@ -2,9 +2,11 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { getFirestore, Timestamp, setDoc, getDoc, doc } from "firebase/firestore";
+import { getFirestore, Timestamp, setDoc, getDoc, doc, getDocs } from "firebase/firestore";
 import { toast } from "react-toastify";
 import { getStorage } from "firebase/storage";
+import { collection, query, where } from "firebase/firestore";
+
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -67,6 +69,7 @@ const signup = async (username, email, password) => {
     const usernameQuery = query(collection(db, 'users'), where('username', '==', username.toLowerCase()));
     const usernameSnapshot = await getDocs(usernameQuery);
 
+    // Check if the query returned any results
     if (!usernameSnapshot.empty) {
       toast.error("Username already in use.");
       return;

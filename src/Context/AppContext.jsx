@@ -46,6 +46,7 @@ const AppContextProvider = (props) => {
             const chatRef = doc(db, 'chats', userData.id);
             const unSub = onSnapshot(chatRef, async (res) => {
                 const chatItems = res.data().chatData;
+                // console.log(chatItems);
                 const tempData = [];
                 for (const chatItem of chatItems) {
                     const userRef = doc(db, 'users', chatItem.rid);

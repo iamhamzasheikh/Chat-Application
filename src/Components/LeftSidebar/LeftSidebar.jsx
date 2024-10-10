@@ -1,9 +1,36 @@
 import './LeftSidebar.css'
 import assets from '../../assets/assets/'
 import { useNavigate } from 'react-router-dom'
+import { collection, getDocs, query, where } from 'firebase/firestore'
+import { db } from '../../Config/Firebase'
+import { useContext } from 'react'
+import { AppContext } from '../../Context/AppContext'
 
 const LeftSidebar = () => {
   const navigate = useNavigate()
+
+  const {userData} = useContext(AppContext);
+
+  const inputHandler = async (e) => {
+    try {
+      const input = e.target.value;
+      console.log('input value', input)
+      const userRef = collection(db, 'users')
+
+      const q = query(userRef, where('username', '==', input.toLowerCase()));
+      const querySnap = await getDocs(q);
+
+      if (!querySnap.empty && querySnap.docs[0].data().id !== userData.id) {
+        console.log(querySnap.docs[0].data());
+      }
+
+
+
+    }
+     catch (error) {
+      console.log(error);
+     }
+  }
 
   return (
     <div className='left-side'>
@@ -23,7 +50,7 @@ const LeftSidebar = () => {
         </div>
         <div className="left-side-search">
           <img src={assets.search_icon} alt="" />
-          <input type="text" placeholder='Search here' />
+          <input onChange={inputHandler} type="text" placeholder='Search here' />
         </div>
       </div>
 
