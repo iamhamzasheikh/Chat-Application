@@ -71,7 +71,7 @@
             }
         }
 
-        .sender-message .msg-img {
+        .sender-message .message-image  {
             max-width: 230px;
             margin-bottom: 30px;
             border-radius: 10px;
@@ -83,8 +83,14 @@
 
             .message {
                 border-radius: 8px 8px 8px 0;
-                background-color: #04a7f8;
+                background-color: rgb(87, 223, 87);
             }
+        }
+
+        .receiver-message .message-image  {
+            max-width: 230px;
+            margin-bottom: 30px;
+            border-radius: 10px;
         }
     }
 
