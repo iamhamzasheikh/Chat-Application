@@ -2,7 +2,7 @@ import { useContext, useState, useEffect } from 'react';
 import './LeftSidebar.css';
 import assets from '../../assets/assets/';
 import { useNavigate } from 'react-router-dom';
-import { arrayUnion, collection, doc, getDocs, query, serverTimestamp, setDoc, updateDoc, where, onSnapshot } from 'firebase/firestore';
+import { arrayUnion, collection, doc, getDocs, query, serverTimestamp, setDoc, updateDoc, where, onSnapshot, getDoc } from 'firebase/firestore';
 import { db } from '../../Config/Firebase';
 import { AppContext } from '../../Context/AppContext';
 import { toast } from 'react-toastify';
@@ -13,21 +13,65 @@ const LeftSidebar = () => {
   const [user, setUser] = useState(null);
   const [showSearch, setShowSearch] = useState(false);
   const [chatsData, setChatsData] = useState([]);
-  const [isAddingChat, setIsAddingChat] = useState(false); // New state to prevent multiple clicks
+  const [isAddingChat, setIsAddingChat] = useState(false);
+  const [newMessageChats, setNewMessageChats] = useState({});
 
+  const [selectedUserData, setSelectedUserData] = useState({
+    name: '',
+    avatar: '',
+  });
+  
   useEffect(() => {
     if (userData && userData.id) {
       const chatRef = doc(db, "chats", userData.id);
       const unsubscribe = onSnapshot(
         chatRef,
-        (docSnapshot) => {
+        async (docSnapshot) => {
           if (docSnapshot.exists()) {
             const data = docSnapshot.data();
-            // Filter out any chat items with invalid data
             const validChats = (data.chatsData || []).filter(chat => 
               chat && chat.userData && chat.userData.avatar && chat.userData.name
             );
-            setChatsData(validChats);
+  
+            // Fetch latest user data for each chat
+            const chatsWithUpdatedData = await Promise.all(
+              validChats.map(async (chat) => {
+                // Get latest user data
+                const userRef = doc(db, 'users', chat.rId);
+                try {
+                  const userSnap = await getDoc(userRef);
+                  if (userSnap.exists()) {
+                    const latestUserData = userSnap.data();
+                    // Update only name and avatar
+                    return {
+                      ...chat,
+                      userData: {
+                        ...chat.userData,
+                        name: latestUserData.name || chat.userData.name,
+                        avatar: latestUserData.avatar || chat.userData.avatar
+                      }
+                    };
+                  }
+                } catch (error) {
+                  console.error("Error fetching user data:", error);
+                }
+                return chat;
+              })
+            );
+  
+            // Sort chats by updatedAt (latest first)
+            chatsWithUpdatedData.sort((a, b) => b.updatedAt - a.updatedAt);
+  
+            setChatsData(chatsWithUpdatedData);
+  
+            // Check for new messages (keeping existing functionality)
+            const newMessageChatsUpdate = {};
+            chatsWithUpdatedData.forEach(chat => {
+              if (!chat.messageSeen && chat.messageId !== messageId) {
+                newMessageChatsUpdate[chat.messageId] = true;
+              }
+            });
+            setNewMessageChats(newMessageChatsUpdate);
           } else {
             setDoc(chatRef, { chatsData: [] });
             setChatsData([]);
@@ -38,10 +82,11 @@ const LeftSidebar = () => {
           toast.error("Failed to load chats. Please try again.");
         }
       );
-
+  
       return () => unsubscribe();
     }
-  }, [userData]);
+  }, [userData, messageId]);
+  
 
   const inputHandler = async (e) => {
     try {
@@ -55,24 +100,32 @@ const LeftSidebar = () => {
         if (querySnap.empty) {
           toast.info('User not available in the system');
           setUser(null);
+          setSelectedUserData({ name: '', avatar: '' }); // Clear selected user data
         } else {
           const foundUser = querySnap.docs[0].data();
-  
           if (foundUser.id !== userData.id) {
             const userExist = chatsData.some(chat => chat.rId === foundUser.id);
             if (!userExist) {
               setUser(foundUser);
+              // Set selected user data with found user's name and avatar
+              setSelectedUserData({
+                name: foundUser.name,
+                avatar: foundUser.avatar,
+              });
             } else {
               setUser(null);
+              setSelectedUserData({ name: '', avatar: '' }); // Clear selected user data
               toast.info('This user is already in your chat list'); // Only shows on Enter press
             }
           } else {
             setUser(null);
+            setSelectedUserData({ name: '', avatar: '' }); // Clear selected user data
           }
         }
       } else if (!input) {
         setShowSearch(false);
         setUser(null);
+        setSelectedUserData({ name: '', avatar: '' }); // Clear selected user data
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -82,22 +135,21 @@ const LeftSidebar = () => {
   
 
   const addChat = async () => {
-    if (isAddingChat) return; // Prevent multiple additions
-    setIsAddingChat(true); // Disable further clicks
+    if (isAddingChat) return;
+    setIsAddingChat(true);
 
     if (!user || !user.id || !user.avatar || !user.name) {
       toast.error('Invalid user data. Cannot add chat.');
-      setIsAddingChat(false); // Re-enable adding if there's an error
+      setIsAddingChat(false);
       return;
     }
 
-    // Check if the user is already in the chat list
     const userExist = chatsData.some(chat => chat.rId === user.id);
     if (userExist) {
       toast.info('This user is already in your chat list');
       setUser(null);
       setShowSearch(false);
-      setIsAddingChat(false); // Re-enable after operation
+      setIsAddingChat(false);
       return;
     }
 
@@ -147,7 +199,7 @@ const LeftSidebar = () => {
       console.error('Error adding chat:', error);
       toast.error('Failed to add chat');
     } finally {
-      setIsAddingChat(false); // Re-enable after operation completes
+      setIsAddingChat(false);
     }
   };
 
@@ -155,8 +207,29 @@ const LeftSidebar = () => {
     if (item && item.messageId) {
       setMessageId(item.messageId);
       setChatUser(item);
+      
+      // Remove highlight when opening the chat
+      setNewMessageChats(prev => ({...prev, [item.messageId]: false}));
+
+      // Update messageSeen status in Firestore
+      updateMessageSeenStatus(item.messageId);
     } else {
       toast.error('Invalid chat selected');
+    }
+  };
+
+  const updateMessageSeenStatus = async (messageId) => {
+    if (userData && userData.id) {
+      const chatRef = doc(db, "chats", userData.id);
+      try {
+        await updateDoc(chatRef, {
+          chatsData: chatsData.map(chat => 
+            chat.messageId === messageId ? { ...chat, messageSeen: true } : chat
+          )
+        });
+      } catch (error) {
+        console.error("Error updating message seen status:", error);
+      }
     }
   };
 
@@ -181,19 +254,25 @@ const LeftSidebar = () => {
       </div>
 
       <div className="left-side-list">
-        {showSearch && user && user.avatar && user.name && !chatsData.some(chat => chat.rId === user.id) ? (
-          <div onClick={addChat} className='friends add-user'>
-            <img src={user.avatar} alt={user.name} />
-            <p>{user.name}</p>
-          </div>
-        ) : null}
+      {showSearch && user && selectedUserData.avatar && selectedUserData.name && !chatsData.some(chat => chat.rId === user.id) ? (
+  <div onClick={addChat} className='friends add-user'>
+    <img src={selectedUserData.avatar} alt={selectedUserData.name} />
+    <p>{selectedUserData.name}</p>
+  </div>
+) : null}
         {chatsData.map((item, index) => (
           item && item.userData && item.userData.avatar && item.userData.name ? (
-            <div onClick={() => setChat(item)} key={index} className={`friends ${item.messageSeen || item.messageId === messageId ? '' : 'border'}`}>
+            <div 
+              onClick={() => setChat(item)} 
+              key={index} 
+              className={`friends ${newMessageChats[item.messageId] ? 'new-message' : ''}`}
+            >
               <img src={item.userData.avatar} alt={item.userData.name} />
               <div>
-                <p>{item.userData.name}</p>
-                <span>{item.lastMessage || ''}</span>
+                <p className={newMessageChats[item.messageId] ? 'new-message-text' : ''}>{item.userData.name}</p>
+                <span className={`last-msg ${newMessageChats[item.messageId] ? 'new-message-text' : ''}`}>
+                  {item.lastMessage || ''}
+                </span>
               </div>
             </div>
           ) : null

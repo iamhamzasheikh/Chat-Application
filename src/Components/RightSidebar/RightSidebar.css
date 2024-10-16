@@ -28,9 +28,10 @@
         }
 
         p {
-            font-size: 10px;
+            font-size: 12px;
             opacity: 80%;
             font-weight: 300;
+            line-height: 1rem;
         }
     }
 
@@ -75,3 +76,30 @@
         cursor: pointer;
     }
 }
+
+/* right-side-btn-css
+
+
+.right-side-btn {
+    color: white;
+    background: #001030;
+    position: relative;
+    height: 75vh;
+    overflow-y: scroll;
+
+    button {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #077eff;
+        color: white;
+        border: none;
+        font-size: 12px;
+        font-weight: 300;
+        padding: 12px 80px;
+        border-radius: 20px;
+        cursor: pointer;
+    }
+
+} */

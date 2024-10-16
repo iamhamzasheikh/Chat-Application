@@ -10,10 +10,18 @@ import { toast } from 'react-toastify';
 const ChatBox = () => {
   const { userData, messageId, chatUser, messages, setMessages } = useContext(AppContext);
   const [input, setInput] = useState('');
+  const [chatUserData, setChatUserData] = useState({
+    name: '',
+    avatar: '',
+    bio: '',
+  });
+
 
   useEffect(() => {
+    // Fetch messages and chat user data if `messageId` exists
     if (messageId) {
-      const unSub = onSnapshot(doc(db, 'messages', messageId), (res) => {
+      const messageDocRef = doc(db, 'messages', messageId);
+      const unSubMessages = onSnapshot(messageDocRef, (res) => {
         if (res.exists()) {
           const data = res.data();
           if (data && data.messages) {
@@ -21,9 +29,29 @@ const ChatBox = () => {
           }
         }
       });
-      return () => unSub();
+
+      const fetchChatUserData = async () => {
+        if (chatUser && chatUser.userData && chatUser.userData.id) {
+          const userDocRef = doc(db, 'users', chatUser.userData.id);
+          const userDocSnap = await getDoc(userDocRef);
+          if (userDocSnap.exists()) {
+            const data = userDocSnap.data();
+            setChatUserData({
+              name: data.name || 'Anonymous',
+              avatar: data.avatar || assets.defaultAvatar, // Fallback to a default avatar
+              bio: data.bio || 'No bio available',
+            });
+          }
+        }
+      };
+
+      fetchChatUserData();
+
+      // Cleanup listener for messages
+      return () => unSubMessages();
     }
-  }, [messageId, setMessages]);
+  }, [messageId, chatUser, setMessages]);
+
 
   const upload = async (file) => {
     if (!file) return null;
@@ -160,17 +188,18 @@ const ChatBox = () => {
   return chatUser ? (
     <div className='chat-box-container'>
       <div className="chat-user">
-        <img src={chatUser.userData.avatar} alt="" />
-        <p>{chatUser.userData.name} <img className='dot' src={assets.green_dot} alt="" /></p>
-        <img src={assets.help_icon} className='help' alt="" />
+        <img src={chatUserData.avatar} alt={`${chatUserData.name}'s avatar`} />
+        <p>{chatUserData.name} <img className='dot' src={assets.green_dot} alt="online status" /></p>
+        <img src={assets.help_icon} className='help' alt="help icon" />
       </div>
+
 
       <div className="chat-message">
         {messages && messages.length > 0 ? (
           messages.map((message, index) => (
             <div key={index} className={message.sId === userData.id ? 'sender-message' : 'receiver-message'}>
-              {message.image ? (<img className='message-image' src={message.image} alt="Sent image" />) 
-              : (<p className='message'>{message.text}</p>)}
+              {message.image ? (<img className='message-image' src={message.image} alt="Sent image" />)
+                : (<p className='message'>{message.text}</p>)}
 
               <div>
                 <img src={message.sId === userData.id ? userData.avatar : chatUser.userData.avatar} alt="" />

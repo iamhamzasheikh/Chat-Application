@@ -89,45 +89,63 @@
         overflow-y: scroll;
 
         .friends {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-size: 13px;
-
-            img {
-                width: 35px;
-                aspect-ratio: 1/1;
-                border-radius: 50%;
-            }
-
-            div {
-                display: flex;
-                flex-direction: column;
-
-                span {
-                    color: #9f9f9f;
-                    font-size: 11px;
-
-                }
-            }
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 10px 20px;
+          cursor: pointer;
+          font-size: 13px;
+          transition: background-color 0.3s ease;
         }
-
+        
+        .friends img {
+          width: 35px;
+          aspect-ratio: 1/1;
+          border-radius: 50%;
+        }
+        
+        .friends div {
+          display: flex;
+          flex-direction: column;
+        }
+        
+        .friends div span.last-msg {
+          color: #9f9f9f;
+          font-size: 14px;
+          transition: color 0.3s ease;
+        }
+        
+        .friends div span.last-msg.new-message-text {
+          color: skyblue; /* Changed from red to skyblue as per our earlier discussion */
+          font-weight: bold;
+        }
+        
         .friends:hover {
-            background-color: #077EFF;
+          background-color: #077EFF;
+        }
+        
+        .friends:hover span.last-msg {
+          color: white;
+        }
+        
+        .friends.new-message {
+          background-color: rgba(135, 206, 235, 0.1); /* Changed to a light sky blue tint */
+        }
+        
+        .friends.new-message p {
+          color: skyblue; /* Added to make the name sky blue for new messages */
+          font-weight: bold;
+        }
+        
+        .friends.new-message:hover {
+          background-color: #077EFF;
+        }
+        
+        .friends.new-message:hover p,
+        .friends.new-message:hover span.last-msg {
+          color: white;
         }
 
-        .friends:hover span {
-            color: white;
-        }
 
-        .friends .border img{
-            border: 3px solid #07fff3;
-        }
-
-        .friends .border div span {
-            color: #07fff3;
-        }
     }
 }
