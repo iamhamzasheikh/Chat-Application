@@ -36,7 +36,7 @@ const AppContextProvider = (props) => {
                         lastSeen: Date.now()
                     })
                 }
-            }, 10000);
+            }, 60000);
         }
         catch (error) {
             console.error("Error getting document:", error);

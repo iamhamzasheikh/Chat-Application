@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 
 const ChatBox = () => {
   const { userData, messageId, chatUser, messages, setMessages } = useContext(AppContext);
+  const [isOnline, setIsOnline] = useState(false);
   const [input, setInput] = useState('');
   const [chatUserData, setChatUserData] = useState({
     name: '',
@@ -20,6 +21,7 @@ const ChatBox = () => {
   useEffect(() => {
     // Fetch messages and chat user data if `messageId` exists
     if (messageId) {
+      // Messages listener
       const messageDocRef = doc(db, 'messages', messageId);
       const unSubMessages = onSnapshot(messageDocRef, (res) => {
         if (res.exists()) {
@@ -30,28 +32,45 @@ const ChatBox = () => {
         }
       });
 
-      const fetchChatUserData = async () => {
-        if (chatUser && chatUser.userData && chatUser.userData.id) {
-          const userDocRef = doc(db, 'users', chatUser.userData.id);
-          const userDocSnap = await getDoc(userDocRef);
-          if (userDocSnap.exists()) {
-            const data = userDocSnap.data();
+      // Chat user status listener
+      let unSubUserStatus;
+      if (chatUser && chatUser.userData && chatUser.userData.id) {
+        const userDocRef = doc(db, 'users', chatUser.userData.id);
+
+        // Real-time listener for user status and data
+        unSubUserStatus = onSnapshot(userDocRef, (doc) => {
+          if (doc.exists()) {
+            const data = doc.data();
             setChatUserData({
               name: data.name || 'Anonymous',
-              avatar: data.avatar || assets.defaultAvatar, // Fallback to a default avatar
+              avatar: data.avatar || assets.defaultAvatar,
               bio: data.bio || 'No bio available',
+              lastSeen: data.lastSeen
             });
+
+            // Check if user is online (last seen within last 2 minutes)
+            if (data.lastSeen) {
+              const lastSeenDate = data.lastSeen.toDate ?
+                data.lastSeen.toDate() :
+                new Date(data.lastSeen);
+              const timeDiff = Date.now() - lastSeenDate.getTime();
+              setIsOnline(timeDiff <= 120000); // 2 minutes threshold
+            } else {
+              setIsOnline(false);
+            }
           }
+        });
+      }
+
+      // Cleanup listeners
+      return () => {
+        unSubMessages();
+        if (unSubUserStatus) {
+          unSubUserStatus();
         }
       };
-
-      fetchChatUserData();
-
-      // Cleanup listener for messages
-      return () => unSubMessages();
     }
   }, [messageId, chatUser, setMessages]);
-
 
   const upload = async (file) => {
     if (!file) return null;
@@ -185,11 +204,17 @@ const ChatBox = () => {
     }
   };
 
+  
+
   return chatUser ? (
     <div className='chat-box-container'>
       <div className="chat-user">
         <img src={chatUserData.avatar} alt={`${chatUserData.name}'s avatar`} />
-        <p>{chatUserData.name} <img className='dot' src={assets.green_dot} alt="online status" /></p>
+        {/* <p>{chatUserData.name} {Date.now()-chatUser.userData.lastSeen <= 70000 ? <img className='dot' src={assets.green_dot} alt="online status" /> : null} </p> */}
+        <p>
+          {chatUserData.name}
+          {isOnline && <img className='dot' src={assets.green_dot} alt="online status" />}
+        </p>
         <img src={assets.help_icon} className='help' alt="help icon" />
       </div>
 

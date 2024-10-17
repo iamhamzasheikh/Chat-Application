@@ -19,12 +19,13 @@ const RightSidebar = () => {
   }
 
   const { chatUser, messages } = useContext(AppContext)
+  const [msgImages, setMsgImages] = useState([])
   const [userData, setUserData] = useState({
     name: '',
     avatar: '',
     bio: '',
   });
-  
+
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -41,29 +42,44 @@ const RightSidebar = () => {
         }
       }
     };
-  
+
+    let tempVar = [];
+    messages.map((msg) => {
+      if (msg.image) {
+        tempVar.push(msg.image);
+      }
+      setMsgImages(tempVar);
+    })
+
+
+
     fetchUserData();
-  }, [chatUser]);
-  
+  }, [chatUser, messages]);
+
 
   return chatUser ? (
     <div className='right-side-bar-container'>
       <div className="right-side-profile">
-      <img src={userData.avatar} alt={`${userData.name}'s avatar`} />
-        <h3> {userData.name}<img src={assets.dot} className='dot' alt="" /></h3>
+        <img src={userData.avatar} alt={`${userData.name}'s avatar`} />
+        <h3> {userData.name} {Date.now() - chatUser.userData.lastSeen <= 70000 ? <img src={assets.green_dot} className='dot' alt="" /> : null}</h3>
         <p>{userData.bio}</p>
       </div>
       <hr />
       <div className="right-side-media">
         <p>Media</p>
         <div>
+          {msgImages.map((url, index) => (<img onClick={()=>window.open(url)} key={index} src={url} alt="" />))}
+        </div>
+
+        {/* <div>
           <img src={assets.pic1} alt="" />
           <img src={assets.pic2} alt="" />
           <img src={assets.pic3} alt="" />
           <img src={assets.pic4} alt="" />
           <img src={assets.pic1} alt="" />
           <img src={assets.pic2} alt="" />
-        </div>
+        </div> */}
+
       </div>
       <button onClick={handleLogout}>Logout</button>
     </div>
