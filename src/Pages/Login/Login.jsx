@@ -1,7 +1,7 @@
 import './Login.css'
 import assets from '../../assets/assets'
 import { useState } from 'react'
-import { signup, auth } from '../../Config/Firebase'
+import { signup, auth, resetPassword } from '../../Config/Firebase'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { toast } from 'react-toastify'
 import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
@@ -12,7 +12,6 @@ const Login = () => {
   const [username, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
   const [showPassword, setShowPassword] = useState(false);
 
 
@@ -68,6 +67,8 @@ const Login = () => {
             currentState === "Sign up" ? <p className='login-toggle'>Already have an account <span onClick={() => { setCurrentState('Login') }}>Login Here</span></p> :
               <p className='login-toggle'>Create an account <span onClick={() => { setCurrentState('Sign up') }}>Click Here</span></p>
           }
+
+          {currentState === 'Login' ? <p className='login-toggle'>Forget Password <span onClick={() => resetPassword(email)}>Reset Here</span></p> : null }
         </div>
 
       </form>
