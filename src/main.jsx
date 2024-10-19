@@ -6,7 +6,7 @@ import AppContextProvider from './Context/AppContext.jsx'
 
 // Use Vite's import.meta.env instead of process.env
 const basename = import.meta.env.PROD 
-  ? '/Chat-Application' 
+  ? '/Chat-Application/' 
   : '/'
 
 createRoot(document.getElementById('root')).render(
