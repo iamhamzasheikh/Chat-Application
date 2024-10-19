@@ -5,7 +5,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-
+    padding: 20px;
+    
     .profile-inner-container {
         background: white;
         display: flex;
@@ -13,12 +14,14 @@
         justify-content: space-between;
         min-width: 700px;
         border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
 
         .profile-pic {
             max-width: 160px;
             aspect-ratio: 1/1;
             margin: 20px auto;
             border-radius: 50%;
+            object-fit: cover;
         }
 
         form {
@@ -26,41 +29,130 @@
             flex-direction: column;
             gap: 20px;
             padding: 40px;
+            width: 100%;
+            max-width: 500px;
 
             h3 {
                 font-weight: 600;
+                font-size: 24px;
+                color: #333;
+                margin-bottom: 10px;
+                /* Remove text-align center to keep it left aligned */
             }
 
             label {
                 display: flex;
                 align-items: center;
                 gap: 10px;
-                color: grey;
+                color: #666;
                 cursor: pointer;
+                transition: all 0.3s ease;
+                /* Remove justify-content center to keep it left aligned */
+                justify-content: flex-start;  /* Explicitly set left alignment */
 
                 img {
                     width: 50px;
                     aspect-ratio: 1/1;
                     border-radius: 50%;
+                    object-fit: cover;
+                    border: 2px solid #eee;
+                    transition: all 0.3s ease;
+
+                    &:hover {
+                        border-color: #077eff;
+                    }
                 }
             }
 
-            input, textarea {
-                padding: 10px;
+            input,
+            textarea {
+                padding: 12px 15px;
                 min-width: 300px;
-                border: 1px solid #c9c9c9;
-                outline: #077eff;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                outline: none;
+                transition: all 0.3s ease;
+                font-size: 14px;
+
+                &:focus {
+                    border-color: #077eff;
+                    box-shadow: 0 0 0 2px rgba(7, 126, 255, 0.1);
+                }
+            }
+
+            textarea {
+                min-height: 100px;
+                resize: vertical;
             }
 
             button {
                 border: none;
                 color: white;
                 background-color: #077eff;
-                padding: 8px;
+                padding: 12px;
                 font-size: 16px;
                 cursor: pointer;
+                border-radius: 8px;
+                transition: all 0.3s ease;
+                font-weight: 500;
+
+                &:hover {
+                    background-color: #0066d6;
+                    transform: translateY(-1px);
+                }
+
+                &:active {
+                    transform: translateY(0);
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-update-main-container {
+        padding: 0;
+        
+        .profile-inner-container {
+            min-width: 100%;
+            min-height: 100vh;
+            border-radius: 0;
+            align-items: start;
+            justify-content: center;
+            
+            .profile-pic {
+                display: none;
             }
 
+            form {
+                padding: 20px;
+                max-width: 100%;
+
+                input,
+                textarea {
+                    min-width: 100%;
+                    width: 100%;
+                }
+
+                h3 {
+                    font-size: 20px;
+                    /* Remove text-align center to keep it left aligned */
+                }
+
+                label {
+                    /* Remove justify-content center to keep it left aligned */
+                    justify-content: flex-start;  /* Explicitly set left alignment */
+                    
+                    img {
+                        width: 70px;
+                    }
+                }
+
+                button {
+                    padding: 15px;
+                    font-size: 16px;
+                }
+            }
         }
     }
 }

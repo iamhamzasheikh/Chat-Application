@@ -207,6 +207,44 @@ const ChatBox = () => {
     }
   };
 
+  // Helper function for formatting date
+  const formatMessageDate = (timestamp) => {
+    if (!timestamp) return '';
+
+    const messageDate = timestamp.toDate();
+    const now = new Date();
+
+    // Reset hours to compare just the dates
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const messageDay = new Date(messageDate.getFullYear(), messageDate.getMonth(), messageDate.getDate());
+
+    // Time format
+    const timeString = messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    // If message is from today
+    if (messageDay.getTime() === today.getTime()) {
+      return timeString;
+    }
+
+    // If message is from yesterday
+    if (messageDay.getTime() === yesterday.getTime()) {
+      return `Yesterday, ${timeString}`;
+    }
+
+    // If message is within last 7 days
+    const daysAgo = (today - messageDay) / (1000 * 60 * 60 * 24);
+    if (daysAgo < 7) {
+      return `${messageDate.toLocaleDateString('en-US', { weekday: 'long' })}, ${timeString}`;
+    }
+
+    // For older messages, show full date
+    return `${messageDate.getDate().toString().padStart(2, '0')}-${(messageDate.getMonth() + 1).toString().padStart(2, '0')}-${messageDate.getFullYear()}, ${timeString}`;
+  };
+
+
 
 
   return chatUser ? (
@@ -218,7 +256,7 @@ const ChatBox = () => {
         <p>
           {chatUserData.name}
           {isOnline && <img className='dot' src={assets.green_dot} alt="online status" />}
-        </p>     
+        </p>
         {chatVisible && (<button className="back-button" onClick={handleBackClick}>← Back</button>)}
       </div>
 
@@ -232,7 +270,8 @@ const ChatBox = () => {
 
               <div>
                 <img src={message.sId === userData.id ? userData.avatar : chatUser.userData.avatar} alt="" />
-                <p>{new Date(message.createdAt.toDate()).toLocaleTimeString()}</p>
+                {/* <p>{new Date(message.createdAt.toDate()).toLocaleTimeString()}</p> */}
+                <p>{formatMessageDate(message.createdAt)}</p>
               </div>
             </div>
           ))
