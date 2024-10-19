@@ -12,6 +12,7 @@ const AppContextProvider = (props) => {
     const [messageId, setMessageId] = useState(null);
     const [messages, setMessages] = useState([]);
     const [chatUser, setChatUser] = useState(null);
+    const [chatVisible, setChatVisible] = useState(false);  // New state for mobile view
 
     const loadUserData = async (uid) => {
         try {
@@ -71,6 +72,8 @@ const AppContextProvider = (props) => {
         messages, setMessages,
         messageId, setMessageId,
         chatUser, setChatUser,
+        chatVisible,
+        setChatVisible
     }
 
 

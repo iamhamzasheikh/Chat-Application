@@ -3,19 +3,18 @@ import './LeftSidebar.css';
 import assets from '../../assets/assets/';
 import { useNavigate } from 'react-router-dom';
 import { arrayUnion, collection, doc, getDocs, query, serverTimestamp, setDoc, updateDoc, where, onSnapshot, getDoc } from 'firebase/firestore';
-import { db } from '../../Config/Firebase';
+import { db, logout } from '../../Config/Firebase';
 import { AppContext } from '../../Context/AppContext';
 import { toast } from 'react-toastify';
 
 const LeftSidebar = () => {
   const navigate = useNavigate();
-  const { userData, setChatUser, setMessageId, messageId } = useContext(AppContext);
+  const { userData, setChatUser, setMessageId, messageId,  chatVisible, setChatVisible } = useContext(AppContext);
   const [user, setUser] = useState(null);
   const [showSearch, setShowSearch] = useState(false);
   const [chatsData, setChatsData] = useState([]);
   const [isAddingChat, setIsAddingChat] = useState(false);
   const [newMessageChats, setNewMessageChats] = useState({});
-
   const [selectedUserData, setSelectedUserData] = useState({
     name: '',
     avatar: '',
@@ -207,7 +206,7 @@ const LeftSidebar = () => {
     if (item && item.messageId) {
       setMessageId(item.messageId);
       setChatUser(item);
-      
+      setChatVisible(true);
       // Remove highlight when opening the chat
       setNewMessageChats(prev => ({...prev, [item.messageId]: false}));
 
@@ -233,8 +232,17 @@ const LeftSidebar = () => {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');  // Navigate back to login page after successful logout
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  }
+
   return (
-    <div className='left-side'>
+    <div className={`left-side ${chatVisible ? 'hidden' : ''}`}>
       <div className="left-side-top">
         <div className="left-side-nav">
           <img src={assets.logo} alt="logo" className='logo' />
@@ -243,7 +251,7 @@ const LeftSidebar = () => {
             <div className='sub-menu'>
               <p onClick={() => navigate('/profileUpdate')}>Edit profile</p>
               <hr />
-              <p>Logout</p>
+              <p onClick={handleLogout}>Logout</p>
             </div>
           </div>
         </div>

@@ -8,7 +8,7 @@ import { db, storage } from '../../Config/Firebase';
 import { toast } from 'react-toastify';
 
 const ChatBox = () => {
-  const { userData, messageId, chatUser, messages, setMessages } = useContext(AppContext);
+  const { userData, messageId, chatUser, messages, setMessages, chatVisible, setChatVisible } = useContext(AppContext);
   const [isOnline, setIsOnline] = useState(false);
   const [input, setInput] = useState('');
   const [chatUserData, setChatUserData] = useState({
@@ -17,6 +17,9 @@ const ChatBox = () => {
     bio: '',
   });
 
+  const handleBackClick = () => {
+    setChatVisible(false);
+  };
 
   useEffect(() => {
     // Fetch messages and chat user data if `messageId` exists
@@ -204,18 +207,19 @@ const ChatBox = () => {
     }
   };
 
-  
+
 
   return chatUser ? (
-    <div className='chat-box-container'>
+    <div className={`chat-box-container ${chatVisible ? 'visible' : ''}`}>
+
       <div className="chat-user">
         <img src={chatUserData.avatar} alt={`${chatUserData.name}'s avatar`} />
         {/* <p>{chatUserData.name} {Date.now()-chatUser.userData.lastSeen <= 70000 ? <img className='dot' src={assets.green_dot} alt="online status" /> : null} </p> */}
         <p>
           {chatUserData.name}
           {isOnline && <img className='dot' src={assets.green_dot} alt="online status" />}
-        </p>
-        <img src={assets.help_icon} className='help' alt="help icon" />
+        </p>     
+        {chatVisible && (<button className="back-button" onClick={handleBackClick}>← Back</button>)}
       </div>
 
 

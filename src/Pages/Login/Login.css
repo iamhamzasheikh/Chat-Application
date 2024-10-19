@@ -93,3 +93,11 @@
         }
     }
 }
+
+@media (max-width: 768px) {
+    .login-container {
+        flex-direction: column;
+        justify-content: center;
+        gap: 30px;
+    }
+}
