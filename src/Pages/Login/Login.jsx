@@ -6,14 +6,34 @@ import { signInWithEmailAndPassword } from 'firebase/auth'
 import { toast } from 'react-toastify'
 import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
 
-
 const Login = () => {
-  const [currentState, setCurrentState] = useState('Sign up');
+  const [currentState, setCurrentState] = useState('Login');
   const [username, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
+  // Email validation
+  const getEmailBorderColor = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) return '#c9c9c9';
+    return emailRegex.test(email) ? '#4CAF50' : '#f44336';
+  };
+
+  // Password strength validation
+  const getPasswordBorderColor = (password) => {
+    if (!password) return '#c9c9c9';
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[a-z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+    if (strength < 2) return '#f44336';
+    if (strength < 4) return '#FFA726';
+    return '#4CAF50';
+  };
 
   const onSubmitHandler = async (event) => {
     event.preventDefault(email, username, password);
@@ -37,22 +57,38 @@ const Login = () => {
       <form onSubmit={onSubmitHandler} className='login-form'>
         <h2>{currentState}</h2>
 
-        {currentState === 'Sign up' ? <input onChange={(e) => setUserName(e.target.value)} value={username} type="text" className="form-input" placeholder='username' required /> : null}
-        <input onChange={(e) => setEmail(e.target.value)} value={email} type="email" className="form-input" placeholder='Email Address' />
+        {currentState === 'Sign up' ? 
+          <input 
+            onChange={(e) => setUserName(e.target.value)} 
+            value={username} 
+            type="text" 
+            className="form-input" 
+            placeholder='username' 
+            required 
+          /> : null}
+
+        <input 
+          onChange={(e) => setEmail(e.target.value)} 
+          value={email} 
+          type="email" 
+          className="form-input" 
+          placeholder='Email Address'
+          style={{ borderColor: getEmailBorderColor(email) }} 
+        />
 
         <div className="password-container">
-
-          <input onChange={(e) => setPassword(e.target.value)}
+          <input 
+            onChange={(e) => setPassword(e.target.value)}
             value={password}
             type={showPassword ? "text" : "password"}
             className="form-input"
-            placeholder='Enter Password' />
+            placeholder='Enter Password'
+            style={{ borderColor: getPasswordBorderColor(password) }}
+          />
 
-          {/* Eye icon to toggle password visibility */}
           <span className="eye-icon" onClick={() => setShowPassword(!showPassword)}>
-            {showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}  {/* Toggle between show/hide icons */}
+            {showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
           </span>
-
         </div>
 
         <button type="submit">{currentState === 'Sign up' ? "Create Account" : 'Login Now'}</button>
@@ -63,16 +99,15 @@ const Login = () => {
         </div>
 
         <div className="login-forgot">
-          {
-            currentState === "Sign up" ? <p className='login-toggle'>Already have an account <span onClick={() => { setCurrentState('Login') }}>Login Here</span></p> :
-              <p className='login-toggle'>Create an account <span onClick={() => { setCurrentState('Sign up') }}>Click Here</span></p>
+          {currentState === "Sign up" ? 
+            <p className='login-toggle'>Already have an account <span onClick={() => { setCurrentState('Login') }}>Login Here</span></p> :
+            <p className='login-toggle'>Create an account <span onClick={() => { setCurrentState('Sign up') }}>Click Here</span></p>
           }
 
-          {currentState === 'Login' ? <p className='login-toggle'>Forget Password <span onClick={() => resetPassword(email)}>Reset Here</span></p> : null }
+          {currentState === 'Login' ? 
+            <p className='login-toggle'>Forget Password <span onClick={() => resetPassword(email)}>Reset Here</span></p> : null}
         </div>
-
       </form>
-
     </div>
   )
 }
