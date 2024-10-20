@@ -1,8 +1,8 @@
 import './Login.css'
 import assets from '../../assets/assets'
 import { useState } from 'react'
-import { signup, auth, resetPassword } from '../../Config/Firebase'
-import { signInWithEmailAndPassword } from 'firebase/auth'
+import { signup, auth } from '../../Config/Firebase'
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth'
 import { toast } from 'react-toastify'
 import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
 
@@ -12,6 +12,9 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isSending, setIsSending] = useState(false); // For showing "Sending..." on the button
+  const [isCheckboxChecked, setIsCheckboxChecked] = useState(false); // Track checkbox state
+
 
   // Email validation
   const getEmailBorderColor = (email) => {
@@ -36,9 +39,13 @@ const Login = () => {
   };
 
   const onSubmitHandler = async (event) => {
-    event.preventDefault(email, username, password);
+    event.preventDefault();
     try {
       if (currentState === 'Sign up') {
+        if (!isCheckboxChecked) {
+          toast.error("Please agree to the terms and conditions before creating an account");
+          return;
+        }
         await signup(username, email, password);
       } else {
         await signInWithEmailAndPassword(auth, email, password);
@@ -50,6 +57,19 @@ const Login = () => {
     }
   }
 
+  const handlePasswordReset = async () => {
+    setIsSending(true);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      toast.success("Password reset email sent!");
+      setIsSending(false);
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error(error.message);
+      setIsSending(false);
+    }
+  };
+
   return (
     <div className='login-container'>
       <img className='logo' src={assets.logo_big} alt="logo" />
@@ -57,55 +77,72 @@ const Login = () => {
       <form onSubmit={onSubmitHandler} className='login-form'>
         <h2>{currentState}</h2>
 
-        {currentState === 'Sign up' ? 
-          <input 
-            onChange={(e) => setUserName(e.target.value)} 
-            value={username} 
-            type="text" 
-            className="form-input" 
-            placeholder='username' 
-            required 
+        {currentState === 'Sign up' ?
+          <input
+            onChange={(e) => setUserName(e.target.value)}
+            value={username}
+            type="text"
+            className="form-input"
+            placeholder='username'
+            required
           /> : null}
 
-        <input 
-          onChange={(e) => setEmail(e.target.value)} 
-          value={email} 
-          type="email" 
-          className="form-input" 
+        <input
+          onChange={(e) => setEmail(e.target.value)}
+          value={email}
+          type="email"
+          className="form-input"
           placeholder='Email Address'
-          style={{ borderColor: getEmailBorderColor(email) }} 
+          style={{ borderColor: getEmailBorderColor(email) }}
         />
 
-        <div className="password-container">
-          <input 
-            onChange={(e) => setPassword(e.target.value)}
-            value={password}
-            type={showPassword ? "text" : "password"}
-            className="form-input"
-            placeholder='Enter Password'
-            style={{ borderColor: getPasswordBorderColor(password) }}
-          />
+        {currentState !== 'Reset' && (
+          <div className="password-container">
+            <input
+              onChange={(e) => setPassword(e.target.value)}
+              value={password}
+              type={showPassword ? "text" : "password"}
+              className="form-input"
+              placeholder='Enter Password'
+              style={{ borderColor: getPasswordBorderColor(password) }}
+            />
+            <span className="eye-icon" onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
+            </span>
+          </div>
+        )}
 
-          <span className="eye-icon" onClick={() => setShowPassword(!showPassword)}>
-            {showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
-          </span>
-        </div>
+        <button
+          type="submit"
+          onClick={currentState === 'Reset' ? handlePasswordReset : onSubmitHandler}
+          disabled={isSending}>
+          {currentState === 'Reset' ? (isSending ? 'Sending...' : 'Send') : (currentState === 'Sign up' ? 'Create Account' : 'Login Now')}
+        </button>
 
-        <button type="submit">{currentState === 'Sign up' ? "Create Account" : 'Login Now'}</button>
 
-        <div className="login-term">
-          <input type="checkbox" />
-          <p>Agree to the terms of use & privacy policy.</p>
-        </div>
+        {currentState === 'Sign up' && (
+          <div className="login-term">
+            <input type="checkbox" checked={isCheckboxChecked} onChange={(e) => setIsCheckboxChecked(e.target.checked)} />
+            <p>Agree to the terms of use & privacy policy.</p>
+          </div>
+        )}
+
 
         <div className="login-forgot">
-          {currentState === "Sign up" ? 
-            <p className='login-toggle'>Already have an account <span onClick={() => { setCurrentState('Login') }}>Login Here</span></p> :
-            <p className='login-toggle'>Create an account <span onClick={() => { setCurrentState('Sign up') }}>Click Here</span></p>
-          }
+          {currentState === 'Sign up' ? (
+            <>
+              <p className='login-toggle'>Already have an account? <span onClick={() => { setCurrentState('Login') }}>Login Here</span></p>
+            </>
+          ) : currentState === 'Login' ? (
+            <p className='login-toggle'>Do not have an account? <span onClick={() => { setCurrentState('Sign up') }}>Create an account</span></p>
+          ) : (
+            <p className='login-toggle'>Already have an account? <span onClick={() => { setCurrentState('Login') }}>Login Here</span></p>
+          )}
 
-          {currentState === 'Login' ? 
-            <p className='login-toggle'>Forget Password <span onClick={() => resetPassword(email)}>Reset Here</span></p> : null}
+          {currentState === 'Login' && (
+            <p className='login-toggle'>Forget Password <span onClick={() => setCurrentState('Reset')}>Reset Here</span></p>
+          )}
+
         </div>
       </form>
     </div>

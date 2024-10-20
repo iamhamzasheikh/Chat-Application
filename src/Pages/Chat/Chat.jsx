@@ -19,7 +19,9 @@ const Chat = () => {
     return (
         <div className="chat-main-container">
             {loading ? (
-                <p className="loading">Loading...</p>
+                <div className="loading-container">
+                    <div className="spinner"></div>
+                </div>
             ) : (
                 <div className="chat-inner-container">
                     {/* Add 'visible' class when that component should be shown */}

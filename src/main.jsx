@@ -4,15 +4,10 @@ import './index.css'
 import { BrowserRouter } from 'react-router-dom'
 import AppContextProvider from './Context/AppContext.jsx'
 
-// Use Vite's import.meta.env instead of process.env
-const basename = import.meta.env.PROD 
-  ? '/Chat-Application/' 
-  : '/'
-
 createRoot(document.getElementById('root')).render(
-  <BrowserRouter basename={basename}>
+  <BrowserRouter>
     <AppContextProvider>
-      <App />
+    <App />
     </AppContextProvider>
   </BrowserRouter>,
 )

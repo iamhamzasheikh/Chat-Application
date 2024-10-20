@@ -22,35 +22,35 @@ const ProfileUpdate = () => {
 
   const profileUpdate = async (event) => {
     event.preventDefault();
+    
     try {
       if (!prevImage && !image) {
-        toast.error('uplord profile image');
-      } else {
-        // Add your profile update logic here
-        toast.success('Profile updated successfully!');
+        toast.error('Please upload a profile image');
+        return;
       }
+  
       const docRef = doc(db, 'users', uid);
-
+  
       if (image) {
+        // This will now show progress via toast
         const imgURL = await upload(image);
         setPrevImage(imgURL);
         await updateDoc(docRef, {
           avatar: imgURL,
           bio: bio,
           name: name,
-        })
+        });
       } else {
         await updateDoc(docRef, {
           bio: bio,
           name: name,
-        })
+        });
       }
-
+  
       const snap = await getDoc(docRef);
       setUserData(snap.data());
-      navigate('/chat')
-
-
+      navigate('/chat');
+  
     } catch (error) {
       console.error('Error updating profile:', error);
       toast.error(error.message);
