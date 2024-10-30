@@ -2,7 +2,7 @@
 import './Login.css'
 import assets from '../../assets/assets'
 import { useEffect, useState } from 'react'
-import { signup, auth , signInWithGoogle } from '../../Config/Firebase'
+import { signup, auth , signInWithGoogle , signInWithGithub } from '../../Config/Firebase'
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth'
 import { toast } from 'react-toastify'
 import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
@@ -51,11 +51,21 @@ const Login = () => {
   }
 };;
   
-    const handleGithubSignIn = () => {
-      // Will implement with Firebase later
-      console.log("Github sign in clicked");
-    };
-  
+  // Add GitHub Sign In handler
+  const handleGithubSignIn = async () => {
+    setIsLoading(true);
+    try {
+      const user = await signInWithGithub();
+      if (user) {
+        navigate('/chat');
+      }
+    } catch (error) {
+      console.error("GitHub sign in error:", error);
+      toast.error("Failed to sign in with GitHub");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
 
   // Email validation
@@ -200,6 +210,7 @@ const Login = () => {
                 type="button" 
                 className="social-button google-button"
                 onClick={handleGoogleSignIn}
+                disabled={isLoading}
               >
                 <FcGoogle size={20} />
                 Continue with Google
@@ -209,6 +220,7 @@ const Login = () => {
                 type="button" 
                 className="social-button github-button"
                 onClick={handleGithubSignIn}
+                disabled={isLoading}
               >
                 <FaGithub size={20} />
                 Continue with GitHub
