@@ -1,12 +1,17 @@
+// login.js
 import './Login.css'
 import assets from '../../assets/assets'
-import { useState } from 'react'
-import { signup, auth } from '../../Config/Firebase'
+import { useEffect, useState } from 'react'
+import { signup, auth , signInWithGoogle } from '../../Config/Firebase'
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth'
 import { toast } from 'react-toastify'
 import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
+import { FcGoogle } from "react-icons/fc";
+import { FaGithub } from "react-icons/fa";
+import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
+  const navigate = useNavigate();
   const [currentState, setCurrentState] = useState('Login');
   const [username, setUserName] = useState('');
   const [email, setEmail] = useState('');
@@ -14,6 +19,43 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isSending, setIsSending] = useState(false); // For showing "Sending..." on the button
   const [isCheckboxChecked, setIsCheckboxChecked] = useState(false); // Track checkbox state
+  const [isLoading, setIsLoading] = useState(false);
+
+
+    // Check for existing auth session
+    useEffect(() => {
+      const unsubscribe = auth.onAuthStateChanged((user) => {
+        if (user) {
+          navigate('/chat');
+        }
+      });
+  
+      return () => unsubscribe();
+    }, [navigate]);
+
+
+    // Add new functions for social login (we'll implement these later)
+ // Enhanced Google Sign In
+ const handleGoogleSignIn = async () => {
+  setIsLoading(true);
+  try {
+    const user = await signInWithGoogle();
+    if (user) {
+      navigate('/chat');
+    }
+  } catch (error) {
+    console.error("Google sign in error:", error);
+    toast.error("Failed to sign in with Google");
+  } finally {
+    setIsLoading(false);
+  }
+};;
+  
+    const handleGithubSignIn = () => {
+      // Will implement with Firebase later
+      console.log("Github sign in clicked");
+    };
+  
 
 
   // Email validation
@@ -113,6 +155,7 @@ const Login = () => {
         )}
 
         <button
+        className='login-btn'
           type="submit"
           onClick={currentState === 'Reset' ? handlePasswordReset : onSubmitHandler}
           disabled={isSending}>
@@ -142,8 +185,37 @@ const Login = () => {
           {currentState === 'Login' && (
             <p className='login-toggle'>Forget Password <span onClick={() => setCurrentState('Reset')}>Reset Here</span></p>
           )}
-
         </div>
+
+        {/* Social login section - Now at the bottom */}
+
+        {currentState !== 'Reset' && (
+          <>
+            <div className="social-login-divider">
+              <span>or</span>
+            </div>
+
+            <div className="social-login-buttons">
+              <button 
+                type="button" 
+                className="social-button google-button"
+                onClick={handleGoogleSignIn}
+              >
+                <FcGoogle size={20} />
+                Continue with Google
+              </button>
+
+              <button 
+                type="button" 
+                className="social-button github-button"
+                onClick={handleGithubSignIn}
+              >
+                <FaGithub size={20} />
+                Continue with GitHub
+              </button>
+            </div>
+          </>
+        )}
       </form>
     </div>
   )

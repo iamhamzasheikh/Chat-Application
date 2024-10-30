@@ -57,7 +57,7 @@
             }
         }
 
-        button {
+        .login-btn {
             padding: 10px;
             background-color: #077EFF;
             color: white;
@@ -101,3 +101,77 @@
         gap: 30px;
     }
 }
+
+
+/* --------------------------------------------------- */
+
+/* Update these styles in your Login.css file */
+
+.social-login-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    /* border: 2px solid red; */
+  }
+  
+  .social-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    background-color: #ffffff;
+    color: #333333;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+    width: 100%;
+  }
+  
+  .social-button:hover {
+    background-color: #f8f8f8;
+  }
+  
+  .google-button, .github-button {
+    background-color: #ffffff;
+    border: 1px solid #dadce0;
+    color: #3c4043;
+  }
+  
+  .google-button:hover, .github-button:hover {
+    background-color: #f8f8f8;
+    border-color: #cacaca;
+  }
+  
+  .social-login-divider {
+    /* border: 2px solid seagreen; */
+    position: relative;
+    text-align: center;
+  }
+  
+  .social-login-divider::before,
+  .social-login-divider::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: calc(50% - 20px);
+    height: 1px;
+    background-color: #dadce0;
+  }
+  
+  .social-login-divider::before {
+    left: 0;
+  }
+  
+  .social-login-divider::after {
+    right: 0;
+  }
+  
+  .social-login-divider span {
+    background-color: white;
+    padding: 0 10px;
+    color: #666;
+    font-size: 14px;
+  }
